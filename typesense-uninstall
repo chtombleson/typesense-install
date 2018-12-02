@@ -13,6 +13,3 @@ rm /etc/systemd/system/typesense.service
 rm -rf /opt/typesense/
 deluser typesense
 delgroup typesense
-
-adduser --system typesense
-addgroup typesense
