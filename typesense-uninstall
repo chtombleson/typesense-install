@@ -1,0 +1,18 @@
+#!/bin/bash
+VERSION=0.1.0
+TYPESENSE_VERSION=0.9.2
+
+echo "Removing Typesense"
+
+systemctl stop typesense
+systemctl disable typesense
+systemctl daemon-reload
+
+rm /etc/systemd/system/typesense.service
+
+rm -rf /opt/typesense/
+deluser typesense
+delgroup typesense
+
+adduser --system typesense
+addgroup typesense

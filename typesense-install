@@ -1,0 +1,44 @@
+#!/bin/bash
+VERSION=0.1.0
+TYPESENSE_VERSION=0.9.2
+
+DOWNLOAD_URL="https://dl.typesense.org/releases/typesense-server-$TYPESENSE_VERSION-linux-amd64.tar.gz"
+API_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+echo "Downloading Typesense"
+
+cd /tmp/
+wget $DOWNLOAD_URL
+tar -xf typesense-server-$TYPESENSE_VERSION-linux-amd64.tar.gz
+
+echo "Setting up Typesense"
+
+adduser --system typesense
+addgroup typesense
+
+mkdir /opt/typesense/
+mkdir /opt/typesense/bin/
+mkdir /opt/typesense/data/
+mv typesense-server /opt/typesense/bin/
+
+chown -R typesense:typesense /opt/typesense/
+
+cat > /etc/systemd/system/typesense.service <<EOF
+[Unit]
+Description=Typesense search engine
+After=network.target
+
+[Service]
+ExecStart=/opt/typesense/bin/typesense-server --data-dir=/opt/typesense/data/ --api-key=$API_KEY
+User=typesense
+Group=typesense
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable typesense
+systemctl daemon-reload
+systemctl start typesense
+
+rm /tmp/typesense-server.md5.txt /tmp/typesense-server-$TYPESENSE_VERSION-linux-amd64.tar.gz
